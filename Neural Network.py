@@ -660,48 +660,6 @@ class Model: # Model class
             layer.backward(layer.next.dinputs)
 
 
-class ReadData():
-    stored = []
-    sheetnames = []
-    
-    def readNames(self, path, fileType):
-        if fileType == 'excel':
-            df = pd.ExcelFile(path)
-            self.sheetnames = df.sheet_names
-            for i in range(len(self.sheetnames)):
-                self.stored.append(df.parse(self.sheetnames[i]))
-
-            df1 = self.stored[0]
-            df2 = df.parse(usecols="C, D")
-            return df2
-            #print(df2)
-        # for i in range(len(self.stored)):
-        #     print(self.stored[2])
-        #     print()
-    
-    def getExpected(self):
-        return self.df2
-
-    def getData(self, ndx):
-        return stored[ndx]
-
-    def getSheet(self, ndx):
-        return sheetnames[ndx]
-
-    # def length(self):
-    #     return len(sheetnames)
-
-    def findNDX(self, searchString):
-        for i in range(len(self.sheetnames)):
-            if self.sheetnames[i] == searchString:
-                return i
-            else:
-                print("Not Found, Returning NULL")
-                pass
-
-rd = ReadData()
-
-rd.readNames(r"C:\Users\cfournier\NeuralDS.xls", 'excel')
 
 
 
@@ -709,18 +667,29 @@ rd.readNames(r"C:\Users\cfournier\NeuralDS.xls", 'excel')
 # X, y = spiral_data(samples=1000, classes=3)
 # X_test, y_test = spiral_data(samples=100, classes=3)
 
-print(rd.readNames(r"C:\Users\cfournier\NeuralDS.xls", 'excel'))
+df = pd.read_excel(r"C:\Users\cfournier\NeuralDS.xls", sheet_name='Fascia WP')
 
-X, y, X_test, y_test = train_test_split(rd.readNames(r"C:\Users\cfournier\NeuralDS.xls", 'excel'), test_size=0.2)
+# fascia_dict = {"84742309 WP": 84742309}
 
-# X = df[['Part Number', 'Recevied']]
-# y = df[['Expected']]
+# df['Part Number'] = df['Part Number'].map(fascia_dict)
+
+df = sklearn.utils.shuffle(df)
+
+X = df.drop('Received', axis=1).values
+X = np.reshape(X,(-1,2))
+X = preprocessing.scale(X)
+y = df['Received'].values
+
+test_size = 25
+
+X_train = X[:-test_size]
+y_train = y[:-test_size]
+
+X_test = X[-test_size:]
+y_test = y[-test_size:]
 
 
-# tp.ReadData.readNames()
-# tp.ReadData.getSheet()
-# tp.ReadData.getData()
-# tp.ReadData.findNDX()
+
 
 
 # Instantiate the model
@@ -737,11 +706,6 @@ model.add(Activation_Softmax())
 # confidences = model.predcit()
 # predictions = model.output_layer_activation.predictions(confidences)
 
-# print expected
-# print(predictions)
-# print received
-# total = 9
-# print(total)
 
 
 
@@ -757,7 +721,7 @@ model.finalize()
 
 
 # Train the model
-model.train(X, y, validation_data=(X_test, y_test), epochs=10000, print_every=100)
+model.train(X_train, y_train, validation_data=(X_test, y_test), epochs=10000, print_every=100)
 
 
 
