@@ -667,7 +667,7 @@ class Model: # Model class
 # X, y = spiral_data(samples=1000, classes=3)
 # X_test, y_test = spiral_data(samples=100, classes=3)
 
-df = pd.read_excel(r"C:\Users\cfournier\NeuralDS.xls", sheet_name='Fascia WP')
+df = pd.read_excel(r"C:\Users\user\NeuralDS.xls", sheet_name='Fascia WP')
 
 # fascia_dict = {"84742309 WP": 84742309}
 
