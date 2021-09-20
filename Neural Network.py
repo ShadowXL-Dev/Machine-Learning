@@ -3,10 +3,13 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import nnfs
 import os
+import sklearn
+
 from nnfs.datasets import sine_data, spiral_data
 from sklearn.model_selection import train_test_split
-# import Testing_Pandas as tp
-# from Testing_Pandas import *
+from sklearn import preprocessing
+from sklearn.utils import shuffle
+
 
 nnfs.init()
 
@@ -480,8 +483,7 @@ class Model: # Model class
             self.loss.remember_trainable_layers(self.trainable_layers)
 
         # If output activation is Softmax and loss function is Categorical Cross-Entropy create an object of combined activation and loss function containing faster gradient calculation
-        if isinstance(self.layers[-1], Activation_Softmax) and \
-           isinstance(self.loss, Loss_CategoricalCrossentropy):
+        if isinstance(self.layers[-1], Activation_Softmax) and isinstance(self.loss, Loss_CategoricalCrossentropy):
             # Create an object of combined activation and loss functions
             self.softmax_classifier_output = Activation_Softmax_Loss_CategoricalCrossentropy()
  
@@ -661,53 +663,40 @@ class Model: # Model class
 
 
 
-
-
 # Create dataset
-# X, y = spiral_data(samples=1000, classes=3)
-# X_test, y_test = spiral_data(samples=100, classes=3)
-
-df = pd.read_excel(r"C:\Users\user\NeuralDS.xls", sheet_name='Fascia WP')
-
-# fascia_dict = {"84742309 WP": 84742309}
-
-# df['Part Number'] = df['Part Number'].map(fascia_dict)
-
-df = sklearn.utils.shuffle(df)
-
-X = df.drop('Received', axis=1).values
-X = np.reshape(X,(-1,2))
-X = preprocessing.scale(X)
-y = df['Received'].values
-
-test_size = 25
-
-X_train = X[:-test_size]
-y_train = y[:-test_size]
-
-X_test = X[-test_size:]
-y_test = y[-test_size:]
+X_train, y_train = spiral_data(samples=1000, classes=3)
+X_test, y_test = spiral_data(samples=100, classes=3)
 
 
+# df = sklearn.utils.shuffle(X, y)
 
+# X = df.drop('Received', axis=1).values
+# X = np.reshape(X,(-1,2))
+# X = preprocessing.scale(X)
+# y = df['Received'].values
+
+# test_size = 25
+
+# X_train = X[:-test_size]
+# y_train = y[:-test_size]
+
+# X_test = X[-test_size:]
+# y_test = y[-test_size:]
 
 
 # Instantiate the model
 model = Model()
 
 # Add layers
-model.add(Layer_Dense(2, 128, weight_regularizer_l2=5e-4, bias_regularizer_l2=5e-4))
+model.add(Layer_Dense(2, 256, weight_regularizer_l2=5e-4, bias_regularizer_l2=5e-4))
 model.add(Activation_ReLU())
 model.add(Layer_Dropout(0.1))
-model.add(Layer_Dense(128, 3))
+model.add(Layer_Dense(256, 3))
 model.add(Activation_Softmax())
 
 
 # confidences = model.predcit()
 # predictions = model.output_layer_activation.predictions(confidences)
-
-
-
 
 # Set loss, optimizer and accuracy objects
 model.set(loss=Loss_CategoricalCrossentropy(), optimizer=Optimizer_Adam(learning_rate=0.07, decay=6e-6), accuracy=Accuracy_Categorical())
@@ -716,12 +705,5 @@ model.set(loss=Loss_CategoricalCrossentropy(), optimizer=Optimizer_Adam(learning
 model.finalize()
 
 
-# print received
-# print difference
-
-
 # Train the model
 model.train(X_train, y_train, validation_data=(X_test, y_test), epochs=10000, print_every=100)
-
-
-
